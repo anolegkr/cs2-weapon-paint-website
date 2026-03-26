@@ -1,22 +1,28 @@
-function App() {
+import React, { useEffect, useState } from "react";
+import { getSkins, buySkin } from "./api";
+import SkinList from "./components/SkinList";
 
-  async function buySkin(id) {
-    await fetch("http://localhost:8000/buy", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        user_id: 1,
-        skin_id: id
-      })
-    });
-  }
+function App() {
+  const [skins, setSkins] = useState([]);
+
+  useEffect(() => {
+    async function fetchSkins() {
+      const data = await getSkins();
+      setSkins(data);
+    }
+    fetchSkins();
+  }, []);
+
+  const handleBuy = async (skin_id) => {
+    const res = await buySkin(1, skin_id); // 1 — тестовый user_id
+    if (res.status === "ok") alert("Куплено!");
+    else alert(res.error);
+  };
 
   return (
     <div>
       <h1>CS2 Shop</h1>
-      <button onClick={() => buySkin(1)}>Купить AK-47</button>
+      <SkinList skins={skins} onBuy={handleBuy} />
     </div>
   );
 }
